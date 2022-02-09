@@ -17,6 +17,8 @@ struct RocketModel {
 
 class RocketListViewController: UIViewController {
     
+    let activityIndicator = UIActivityIndicatorView()
+    
     var collectionView = UICollectionView(frame: .zero, collectionViewLayout:       UICollectionViewFlowLayout.init())
     let layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout.init()
     
@@ -41,6 +43,7 @@ class RocketListViewController: UIViewController {
             case .success(let searchResponse):
                 self?.searcResponce = searchResponse
                 self?.collectionView.reloadData()
+                self?.activityIndicator.stopAnimating()
                 self?.array = searchResponse.map{
                     RocketModel(name: $0.name, date: $0.firstFlight, cost: "\($0.costPerLaunch)$", success: "\($0.successRatePct)%", image: $0.flickrImages.first!)
                 }
@@ -53,16 +56,22 @@ class RocketListViewController: UIViewController {
     func setupUI() {
         view.backgroundColor = UIColor(named: "Queen Blue")
         setupNavigationBar()
+        setupActivityIndicator()
         setupCollectionView()
         setupLayout()
     }
     
     func setupNavigationBar() {
         navigationController!.navigationBar.barTintColor = UIColor(named: "Queen Blue")
-        navigationController!.navigationBar.isTranslucent = false
         let arrows = UIBarButtonItem(image: UIImage(named: "upAndDownArrows"), style: .done, target: self, action: #selector(arrowTapped))
         navigationItem.rightBarButtonItem  = arrows
         navigationController?.navigationBar.tintColor = UIColor(named: "Coral")
+    }
+    
+    func setupActivityIndicator() {
+        activityIndicator.startAnimating()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(activityIndicator)
     }
     
     func setupCollectionView() {
@@ -80,6 +89,9 @@ class RocketListViewController: UIViewController {
     
     func setupLayout() {
     NSLayoutConstraint.activate([
+        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        
         collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
         collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),

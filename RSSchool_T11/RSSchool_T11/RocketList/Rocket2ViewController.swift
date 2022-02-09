@@ -103,6 +103,8 @@ class Rocket2ViewController: UIViewController {
     let backButton = UIButton(frame: .zero)
     var index = Int()
     
+    let activityIndicator = UIActivityIndicatorView()
+    
     var searcRocket: [SearchResponse]? = nil
     let rocketService = NetworkService()
     
@@ -155,6 +157,7 @@ class Rocket2ViewController: UIViewController {
                 self?.landingLegsCell = LandingLegsModel(amount: "\(searchResponse[self!.index].landingLegs.number)", material: searchResponse[self!.index].landingLegs.material ?? "")
                 self?.wikipediaURLString = searchResponse[self!.index].wikipedia
                 self?.rocketCollectionView.reloadData()
+                self?.activityIndicator.stopAnimating()
             case .failure(let error):
                 print(error)
             }
@@ -164,6 +167,7 @@ class Rocket2ViewController: UIViewController {
     func setupUI() {
         view.backgroundColor = UIColor(named: "White")
         setupNavigationBar()
+        setupActivityIndicator()
         setupCollectionView()
         setupBackButton()
         setupLayoutRocket()
@@ -181,6 +185,12 @@ class Rocket2ViewController: UIViewController {
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.addTarget(self, action: #selector(backButtonTapped(_:)), for: .touchUpInside)
         view.addSubview(backButton)
+    }
+    
+    func setupActivityIndicator() {
+        activityIndicator.startAnimating()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(activityIndicator)
     }
     
     func setupCollectionView() {
@@ -203,7 +213,10 @@ class Rocket2ViewController: UIViewController {
     func setupLayoutRocket() {
         NSLayoutConstraint.activate([
             
-            rocketCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            rocketCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
             rocketCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             rocketCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             rocketCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -297,7 +310,7 @@ extension Rocket2ViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.section == 0 {
+        if indexPath.section == RocketSection.titleImage.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: TitleImageCollectionViewCell.reusedId, for: indexPath) as! TitleImageCollectionViewCell
             cell.nameRocket.text = mainImageCell.name
             let string = mainImageCell.image
@@ -305,11 +318,11 @@ extension Rocket2ViewController: UICollectionViewDataSource {
                 cell.rocketImage.image = image
             }
             return cell
-        } else if indexPath.section == 1 {
+        } else if indexPath.section == RocketSection.description.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: DescriptionCollectionViewCell.reusedId, for: indexPath) as! DescriptionCollectionViewCell
             cell.descriptionText.text = descriptionCell.descriptionText
             return cell
-        } else if indexPath.section == 2 {
+        } else if indexPath.section == RocketSection.overview.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: NameValueCollectionViewCell.reusedId, for: indexPath) as! NameValueCollectionViewCell
             cell.name.text = overviewName[indexPath.row]
             if let currentOverviewCell = OverviewSection(rawValue: indexPath.row) {
@@ -330,14 +343,14 @@ extension Rocket2ViewController: UICollectionViewDataSource {
                 }
             }
             return cell
-        } else if indexPath.section == 3 {
+        } else if indexPath.section == RocketSection.images.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: ImagesCollectionViewCell.reusedId, for: indexPath) as! ImagesCollectionViewCell
             cell.imageString = imageCell.imageString
             cell.imagesCollectionView.reloadData()
             guard let customCell = cell as? ImagesCollectionViewCell else { fatalError("Unable to dequeue expected type: CustomTableViewCell") }
                 customCell.delegate = self
                 return customCell
-        } else if indexPath.section == 4 {
+        } else if indexPath.section == RocketSection.engines.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: NameValueCollectionViewCell.reusedId, for: indexPath) as! NameValueCollectionViewCell
             cell.name.text = enginesNames[indexPath.row]
             if let currentEnginesCell = EnginesSection(rawValue: indexPath.row) {
@@ -357,7 +370,7 @@ extension Rocket2ViewController: UICollectionViewDataSource {
                 }
             }
             return cell
-        } else if indexPath.section == 5 {
+        } else if indexPath.section == RocketSection.firstStage.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: NameValueCollectionViewCell.reusedId, for: indexPath) as! NameValueCollectionViewCell
             cell.name.text = firstStageNames[indexPath.row]
             if let currentFirstStageCell = FirstStageSection(rawValue: indexPath.row) {
@@ -378,7 +391,7 @@ extension Rocket2ViewController: UICollectionViewDataSource {
                 }
             }
             return cell
-        } else if indexPath.section == 6 {
+        } else if indexPath.section == RocketSection.secondStage.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: NameValueCollectionViewCell.reusedId, for: indexPath) as! NameValueCollectionViewCell
             cell.name.text = secondStageNames[indexPath.row]
             if let currentSecondStageCell = SecondStageSection(rawValue: indexPath.row) {
@@ -397,7 +410,7 @@ extension Rocket2ViewController: UICollectionViewDataSource {
                 }
             }
             return cell
-        } else if indexPath.section == 7 {
+        } else if indexPath.section == RocketSection.landingLegs.rawValue {
             let cell = rocketCollectionView.dequeueReusableCell(withReuseIdentifier: NameValueCollectionViewCell.reusedId, for: indexPath) as! NameValueCollectionViewCell
             cell.name.text = landingLegsNames[indexPath.row]
             if let currentLandingLegsCell = LandingLegsSection(rawValue: indexPath.row) {

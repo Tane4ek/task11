@@ -30,7 +30,6 @@ var window: UIWindow?
         UITabBar.appearance().tintColor = UIColor(named: "Coral")
         UITabBar.appearance().unselectedItemTintColor = UIColor(named: "White")
         UITabBar.appearance().barTintColor = UIColor(named: "Queen Blue")
-        UITabBar.appearance().isTranslucent = false
 
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
